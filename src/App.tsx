@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import { jsPDF } from 'jspdf';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import html2canvas from 'html2canvas';
 
 const formatTime = (date: Date) => {
   const iso = date.toISOString().replace(/[:.]/g, '-');
@@ -34,7 +34,7 @@ const createPuzzle = () => {
 
 const createFileName = (name: string) => {
   const sanitized = name.trim().replace(/\s+/g, '') || 'result';
-  return `${sanitized}_${formatTime(new Date())}.pdf`;
+  return `${sanitized}_${formatTime(new Date())}.png`;
 };
 
 const toDisplayDigits = (digits: number[]) => digits.map((value) => value.toString());
@@ -47,6 +47,7 @@ function App() {
   const [messageType, setMessageType] = useState<'pass' | 'fail' | ''>('');
   const [results, setResults] = useState<Array<{ puzzle: string; passed: boolean }>>([]);
   const [answerDigits, setAnswerDigits] = useState(['', '', '']);
+  const exportRef = useRef<HTMLDivElement | null>(null);
   const puzzle = useMemo(createPuzzle, [puzzleId]);
   const resultDigits = useMemo(() => puzzle.resultDigits.map((d) => d.toString()), [puzzle]);
 
@@ -108,33 +109,35 @@ function App() {
     }, 300);
   };
 
-  const exportPdf = () => {
-    const doc = new jsPDF({ unit: 'pt', format: 'a4' });
-    doc.setFontSize(20);
-    doc.text('Math Player Test Results', 40, 60);
-
-    doc.setFontSize(14);
-    doc.text(`Name: ${name || 'Anonymous'}`, 40, 100);
-    doc.text(`Score: ${score}`, 40, 122);
-    doc.text(`Completed puzzles: ${results.length}`, 40, 144);
-    doc.text(`Generated: ${new Date().toLocaleString()}`, 40, 166);
-
-    doc.setFontSize(12);
-    let y = 200;
-    results.slice(0, 20).forEach((entry, index) => {
-      doc.text(`${index + 1}. ${entry.puzzle} — ${entry.passed ? 'PASS' : 'FAIL'}`, 40, y);
-      y += 18;
-      if (y > 760) {
-        doc.addPage();
-        y = 60;
-      }
+  const passCount = results.filter((entry) => entry.passed).length;
+  const exportImage = async () => {
+    if (!exportRef.current) return;
+    const canvas = await html2canvas(exportRef.current, {
+      backgroundColor: '#f5edea',
+      scale: 2
     });
-
-    doc.save(createFileName(name));
+    const link = document.createElement('a');
+    link.href = canvas.toDataURL('image/png');
+    link.download = createFileName(name);
+    link.click();
   };
 
   return (
     <div className="app-shell">
+      <div className="export-card" ref={exportRef}>
+        <div className="export-badge">SumSprint</div>
+        <h1>{name || 'Player'}</h1>
+        <div className="export-metrics">
+          <div className="metric-block">
+            <span>Score</span>
+            <strong>{score}</strong>
+          </div>
+          <div className="metric-block">
+            <span>Passed</span>
+            <strong>{passCount}/{results.length}</strong>
+          </div>
+        </div>
+      </div>
       <header className="top-bar">
         <button className="new-game-button" onClick={handleNewGame}>
           New Game
@@ -150,13 +153,27 @@ function App() {
         </div>
         <div className="top-actions">
           <button className="small-button" onClick={setNewPuzzle}>New Puzzle</button>
-          <button className="small-button" onClick={exportPdf} title="Download results PDF">
-            Share
+          <button className="small-button" onClick={exportImage} title="Download results image">
+            Download Image
           </button>
         </div>
       </header>
 
       <main className="main-card">
+        <div className="score-summary">
+          <div className="summary-block score-block">
+            <span>Score</span>
+            <strong>{score}</strong>
+          </div>
+          <div className="summary-block pass-block">
+            <span>Passed</span>
+            <strong>{passCount}/{results.length}</strong>
+          </div>
+          <div className="summary-block total-block">
+            <span>Puzzles</span>
+            <strong>{results.length}</strong>
+          </div>
+        </div>
         <div className="puzzle-state">
           <div className="number-row first-row">
             {toDisplayDigits(puzzle.aDigits).map((digit, index) => (
@@ -195,12 +212,16 @@ function App() {
       </main>
 
       <footer className="status-bar">
-        <div className="score-card">
+        <div className="status-card score-card">
           <span>Score</span>
           <strong>{score}</strong>
         </div>
-        <div className="result-count">
-          <span>Puzzles</span>
+        <div className="status-card pass-card">
+          <span>Passed</span>
+          <strong>{passCount}/{results.length}</strong>
+        </div>
+        <div className="status-card total-card">
+          <span>Total</span>
           <strong>{results.length}</strong>
         </div>
       </footer>
