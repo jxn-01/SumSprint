@@ -598,6 +598,100 @@ body {
   margin-top: 24px;
 }
 
+@media (max-width: 900px) {
+  .top-bar {
+    flex-wrap: wrap;
+    align-items: stretch;
+  }
+
+  .name-row {
+    flex: 1 1 100%;
+    justify-content: stretch;
+  }
+
+  .name-row input {
+    width: 100%;
+  }
+
+  .top-actions {
+    flex: 1 1 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .main-card,
+  .admin-card,
+  .export-card {
+    padding: 20px;
+  }
+
+  .admin-metrics-grid,
+  .admin-dashboard-grid,
+  .export-metrics {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  }
+
+  .admin-dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .number-row {
+    grid-template-columns: repeat(3, minmax(52px, 1fr));
+  }
+
+  .plus-sign {
+    position: static;
+    transform: none;
+    margin: 0 auto;
+    font-size: 2rem;
+  }
+
+  .admin-panel-block,
+  .admin-table {
+    overflow-x: auto;
+  }
+
+  .admin-table th,
+  .admin-table td {
+    padding: 12px 10px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 620px) {
+  .top-bar {
+    gap: 8px;
+  }
+
+  .new-game-button,
+  .small-button,
+  .check-button {
+    width: 100%;
+  }
+
+  .score-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .answer-row {
+    grid-template-columns: repeat(3, minmax(44px, 1fr));
+  }
+
+  .digit-input,
+  .digit-cell {
+    width: 58px;
+    height: 58px;
+    font-size: 1.6rem;
+  }
+
+  .metric-block,
+  .status-card,
+  .admin-metric-card {
+    padding: 16px;
+  }
+}
+
 .score-card,
 .result-count {
   background: rgba(255, 255, 255, 0.88);
