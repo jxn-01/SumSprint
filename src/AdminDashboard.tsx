@@ -89,7 +89,7 @@ const AdminDashboard = forwardRef<HTMLDivElement, AdminDashboardProps>(
                 Unlock Dashboard
               </button>
               <p className="admin-note">
-                Use the secret key <strong>sumadmin</strong> to view the console.
+                Enter the admin key configured in `.env` to view analytics and reports.
               </p>
               {message && <p className="admin-status-message">{message}</p>}
             </div>
@@ -98,20 +98,20 @@ const AdminDashboard = forwardRef<HTMLDivElement, AdminDashboardProps>(
               {message && <p className="admin-status-message success">{message}</p>}
               <div className="admin-metrics-grid">
                 <div className="admin-metric-card">
-                  <span>Active Users</span>
-                  <strong>{userCount}</strong>
+                  <span>Users</span>
+                  <strong>{overview?.userCount ?? userCount}</strong>
                 </div>
                 <div className="admin-metric-card">
-                  <span>Total Score</span>
-                  <strong>{score}</strong>
+                  <span>Sessions</span>
+                  <strong>{overview?.totalSessions ?? 0}</strong>
                 </div>
                 <div className="admin-metric-card">
-                  <span>Passed</span>
-                  <strong>{passed}</strong>
+                  <span>Attempts</span>
+                  <strong>{overview?.totalAttempts ?? results.length}</strong>
                 </div>
                 <div className="admin-metric-card">
-                  <span>Accuracy</span>
-                  <strong>{accuracy}%</strong>
+                  <span>Total score</span>
+                  <strong>{overview?.totalScore ?? score}</strong>
                 </div>
               </div>
 
@@ -121,23 +121,23 @@ const AdminDashboard = forwardRef<HTMLDivElement, AdminDashboardProps>(
                   <div className="chart-row">
                     <div className="chart-label">Total attempts</div>
                     <div className="chart-bar">
-                      <div className="chart-bar-fill" style={{ width: `${Math.min(100, results.length * 12)}%`, background: '#4d5df6' }} />
+                      <div className="chart-bar-fill" style={{ width: `${Math.min(100, (overview?.totalAttempts ?? results.length) * 8)}%`, background: '#4d5df6' }} />
                     </div>
-                    <div className="chart-detail">{results.length}</div>
+                    <div className="chart-detail">{overview?.totalAttempts ?? results.length}</div>
                   </div>
                   <div className="chart-row">
                     <div className="chart-label">Passed attempts</div>
                     <div className="chart-bar">
-                      <div className="chart-bar-fill" style={{ width: `${Math.min(100, passed * 12)}%`, background: '#43aa8b' }} />
+                      <div className="chart-bar-fill" style={{ width: `${Math.min(100, (overview?.totalPassed ?? passed) * 9)}%`, background: '#43aa8b' }} />
                     </div>
-                    <div className="chart-detail">{passed}</div>
+                    <div className="chart-detail">{overview?.totalPassed ?? passed}</div>
                   </div>
                   <div className="chart-row">
                     <div className="chart-label">Failed attempts</div>
                     <div className="chart-bar">
-                      <div className="chart-bar-fill" style={{ width: `${Math.min(100, failed * 12)}%`, background: '#dd4545' }} />
+                      <div className="chart-bar-fill" style={{ width: `${Math.min(100, ((overview?.totalAttempts ?? results.length) - (overview?.totalPassed ?? passed)) * 9)}%`, background: '#dd4545' }} />
                     </div>
-                    <div className="chart-detail">{failed}</div>
+                    <div className="chart-detail">{(overview?.totalAttempts ?? results.length) - (overview?.totalPassed ?? passed)}</div>
                   </div>
                 </div>
 
@@ -167,6 +167,68 @@ const AdminDashboard = forwardRef<HTMLDivElement, AdminDashboardProps>(
                       )}
                     </tbody>
                   </table>
+                </div>
+              </div>
+
+              <div className="admin-dashboard-grid">
+                <div className="admin-panel-block admin-table-block">
+                  <h3>User sessions</h3>
+                  {overview?.userSummary?.length ? (
+                    <table className="admin-table">
+                      <thead>
+                        <tr>
+                          <th>User</th>
+                          <th>Sessions</th>
+                          <th>Attempts</th>
+                          <th>Total score</th>
+                          <th>Avg session</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {overview.userSummary.map((item) => (
+                          <tr key={item.playerName}>
+                            <td>{item.playerName}</td>
+                            <td>{item.sessions}</td>
+                            <td>{item.totalAttempts}</td>
+                            <td>{item.totalScore}</td>
+                            <td>{item.avgSessionScore}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  ) : (
+                    <p className="admin-note">No session summary available yet.</p>
+                  )}
+                </div>
+
+                <div className="admin-panel-block admin-table-block">
+                  <h3>Top sessions</h3>
+                  {overview?.topSessions?.length ? (
+                    <table className="admin-table">
+                      <thead>
+                        <tr>
+                          <th>User</th>
+                          <th>Session</th>
+                          <th>Score</th>
+                          <th>Attempts</th>
+                          <th>Pass %</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {overview.topSessions.map((item) => (
+                          <tr key={item.sessionId}>
+                            <td>{item.playerName}</td>
+                            <td>{item.sessionId.slice(0, 8)}</td>
+                            <td>{item.score}</td>
+                            <td>{item.attempts}</td>
+                            <td>{item.passRate}%</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  ) : (
+                    <p className="admin-note">No top sessions available yet.</p>
+                  )}
                 </div>
               </div>
 
@@ -211,7 +273,7 @@ const AdminDashboard = forwardRef<HTMLDivElement, AdminDashboardProps>(
                   Download Image
                 </button>
                 <button className="small-button share-button" onClick={onExportPdf}>
-                  Download PDF
+                  Download PDF Report
                 </button>
               </div>
             </>

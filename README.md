@@ -32,6 +32,7 @@ This project includes a Supabase integration for admin analytics and monthly usa
 2. Add a new table named `attempts` with columns:
    - `id` (UUID, primary key, default `gen_random_uuid()` or `uuid_generate_v4()`)
    - `player_name` (text)
+   - `session_id` (text)
    - `puzzle` (text)
    - `passed` (boolean)
    - `score` (integer)
@@ -39,7 +40,20 @@ This project includes a Supabase integration for admin analytics and monthly usa
 3. Copy `.env.example` to `.env` and set:
    - `VITE_SUPABASE_URL`
    - `VITE_SUPABASE_ANON_KEY`
+   - `VITE_ADMIN_KEY`
 4. Restart the dev server after updating `.env`.
+
+## Supabase row-level security
+
+If the admin dashboard loads but shows no data, your Supabase `anon` key may still be blocked from reading the `attempts` table.
+
+Run the SQL in `supabase-policy-setup.sql` from the Supabase SQL editor, or add these policies manually:
+
+- Enable row-level security on `public.attempts`
+- Allow `anon` to `INSERT` rows with `WITH CHECK (true)`
+- Allow `anon` to `SELECT` rows with `USING (true)`
+
+This ensures browser-based inserts and dashboard reads work with the current app setup.
 
 ## Deployment
 

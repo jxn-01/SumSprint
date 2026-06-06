@@ -5,7 +5,7 @@ import AdminDashboard, { ResultEntry } from './AdminDashboard';
 import { hasSupabase } from './supabaseClient';
 import { saveAttempt, fetchAdminOverview, AdminOverview } from './supabaseApi';
 
-const ADMIN_KEY = 'sumadmin';
+const ADMIN_KEY = import.meta.env.VITE_ADMIN_KEY ?? '';
 
 const formatTime = (date: Date) => {
   const iso = date.toISOString().replace(/[:.]/g, '-');
@@ -52,6 +52,7 @@ function App() {
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'pass' | 'fail' | ''>('');
   const [results, setResults] = useState<ResultEntry[]>([]);
+  const [sessionId, setSessionId] = useState(() => crypto.randomUUID());
   const [answerDigits, setAnswerDigits] = useState(['', '', '']);
   const [showAdmin, setShowAdmin] = useState(false);
   const [adminAuthorized, setAdminAuthorized] = useState(false);
@@ -84,6 +85,7 @@ function App() {
   const handleNewGame = () => {
     setScore(0);
     setResults([]);
+    setSessionId(crypto.randomUUID());
     setNewPuzzle();
   };
 
@@ -125,6 +127,7 @@ function App() {
 
     void saveAttempt({
       playerName: name.trim() || 'Guest',
+      sessionId,
       puzzle: `${puzzle.aDigits.join('')} + ${puzzle.bDigits.join('')} = ${answerDigits.join('')}`,
       passed: correct,
       score: newScore,
@@ -201,14 +204,100 @@ function App() {
   };
 
   const exportAdminPdf = async () => {
-    if (!adminExportRef.current) return;
-    const canvas = await html2canvas(adminExportRef.current, {
-      backgroundColor: '#ffffff',
-      scale: 2
-    });
-    const imageData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF({ orientation: 'landscape', unit: 'px', format: [canvas.width, canvas.height] });
-    pdf.addImage(imageData, 'PNG', 0, 0, canvas.width, canvas.height);
+    const pdf = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'a4' });
+    const margin = 40;
+    let y = margin;
+
+    pdf.setFontSize(18);
+    pdf.text('SumSprint Admin Report', margin, y);
+    y += 24;
+
+    pdf.setFontSize(11);
+    pdf.text(`Generated: ${new Date().toLocaleString()}`, margin, y);
+    y += 24;
+
+    const overview = adminOverview;
+    const totalSessions = overview?.totalSessions ?? 0;
+    const totalAttempts = overview?.totalAttempts ?? 0;
+    const totalPassed = overview?.totalPassed ?? 0;
+    const totalScore = overview?.totalScore ?? 0;
+    const userCountReport = overview?.userCount ?? 0;
+
+    pdf.setFontSize(12);
+    pdf.text(`Users: ${userCountReport}`, margin, y);
+    pdf.text(`Sessions: ${totalSessions}`, margin + 160, y);
+    pdf.text(`Attempts: ${totalAttempts}`, margin + 320, y);
+    y += 20;
+    pdf.text(`Passed: ${totalPassed}`, margin, y);
+    pdf.text(`Total score: ${totalScore}`, margin + 160, y);
+    y += 28;
+
+    const drawTable = (headers: string[], rows: string[][], title: string) => {
+      pdf.setFontSize(14);
+      pdf.text(title, margin, y);
+      y += 18;
+      pdf.setFontSize(10);
+      const columnWidth = (pdf.internal.pageSize.getWidth() - margin * 2) / headers.length;
+      headers.forEach((header, index) => {
+        pdf.text(header, margin + index * columnWidth, y);
+      });
+      y += 16;
+
+      rows.forEach((row) => {
+        if (y > pdf.internal.pageSize.getHeight() - margin - 40) {
+          pdf.addPage();
+          y = margin;
+        }
+        row.forEach((cell, index) => {
+          pdf.text(cell, margin + index * columnWidth, y);
+        });
+        y += 14;
+      });
+      y += 16;
+    };
+
+    if (overview?.userSummary?.length) {
+      drawTable(
+        ['User', 'Sessions', 'Attempts', 'Total Score', 'Avg Session'],
+        overview.userSummary.map((item) => [
+          item.playerName,
+          item.sessions.toString(),
+          item.totalAttempts.toString(),
+          item.totalScore.toString(),
+          item.avgSessionScore.toString()
+        ]),
+        'User session summary'
+      );
+    }
+
+    if (overview?.topSessions?.length) {
+      drawTable(
+        ['User', 'Session', 'Score', 'Attempts', 'Pass %'],
+        overview.topSessions.map((item) => [
+          item.playerName,
+          item.sessionId.slice(0, 8),
+          item.score.toString(),
+          item.attempts.toString(),
+          `${item.passRate}%`
+        ]),
+        'Top 5 sessions'
+      );
+    }
+
+    if (overview?.monthlyStats?.length) {
+      drawTable(
+        ['Month', 'Attempts', 'Passed', 'Failed', 'Avg Score'],
+        overview.monthlyStats.map((item) => [
+          item.month,
+          item.attempts.toString(),
+          item.passed.toString(),
+          item.failed.toString(),
+          item.avgScore.toString()
+        ]),
+        'Monthly analytics'
+      );
+    }
+
     pdf.save(`admin-report_${formatTime(new Date())}.pdf`);
   };
 
@@ -327,20 +416,6 @@ function App() {
         </div>
       </main>
 
-      <footer className="status-bar">
-        <div className="status-card score-card">
-          <span>Score</span>
-          <strong>{score}</strong>
-        </div>
-        <div className="status-card pass-card">
-          <span>Passed</span>
-          <strong>{passCount}/{results.length}</strong>
-        </div>
-        <div className="status-card total-card">
-          <span>Total</span>
-          <strong>{results.length}</strong>
-        </div>
-      </footer>
     </div>
   );
 }
