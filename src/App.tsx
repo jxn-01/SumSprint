@@ -48,6 +48,7 @@ function App() {
   const [results, setResults] = useState<Array<{ puzzle: string; passed: boolean }>>([]);
   const [answerDigits, setAnswerDigits] = useState(['', '', '']);
   const exportRef = useRef<HTMLDivElement | null>(null);
+  const answerRefs = useRef<Array<HTMLInputElement | null>>([]);
   const puzzle = useMemo(createPuzzle, [puzzleId]);
   const resultDigits = useMemo(() => puzzle.resultDigits.map((d) => d.toString()), [puzzle]);
 
@@ -76,6 +77,9 @@ function App() {
   const handleAnswerChange = (index: number, value: string) => {
     if (!/^[0-9]?$/.test(value)) return;
     setAnswerDigits((current) => current.map((item, idx) => (idx === index ? value : item)));
+    if (value.length === 1 && index > 0) {
+      window.setTimeout(() => answerRefs.current[index - 1]?.focus(), 0);
+    }
   };
 
   const handleSubmit = () => {
@@ -153,8 +157,9 @@ function App() {
         </div>
         <div className="top-actions">
           <button className="small-button" onClick={setNewPuzzle}>New Puzzle</button>
-          <button className="small-button" onClick={exportImage} title="Download results image">
-            Download Image
+          <button className="small-button share-button" onClick={exportImage} title="Share score">
+            <span className="share-icon">📤</span>
+            Share Score
           </button>
         </div>
       </header>
@@ -195,6 +200,7 @@ function App() {
             {answerDigits.map((digit, index) => (
               <input
                 key={`answer-${index}`}
+                ref={(el) => (answerRefs.current[index] = el)}
                 className="digit-input"
                 value={digit}
                 onChange={(event) => handleAnswerChange(index, event.target.value)}

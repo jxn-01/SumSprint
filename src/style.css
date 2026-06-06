@@ -53,6 +53,15 @@ body {
   font-weight: 700;
 }
 
+.small-button.share-button {
+  background: linear-gradient(135deg, #4d5df6, #2ae5d4);
+  color: #ffffff;
+}
+
+.small-button.share-button .share-icon {
+  margin-right: 8px;
+}
+
 .new-game-button:hover,
 .small-button:hover,
 .check-button:hover {
