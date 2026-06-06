@@ -26,6 +26,7 @@ body {
   display: flex;
   flex-direction: column;
   padding: 24px;
+  gap: 22px;
 }
 
 .top-bar {
@@ -55,6 +56,11 @@ body {
 
 .small-button.share-button {
   background: linear-gradient(135deg, #4d5df6, #2ae5d4);
+  color: #ffffff;
+}
+
+.small-button.admin-button {
+  background: linear-gradient(135deg, #7c4dff, #5c7dff);
   color: #ffffff;
 }
 
@@ -246,6 +252,265 @@ body {
   display: block;
   color: #5b5a57;
   margin-bottom: 8px;
+}
+
+.admin-screen {
+  width: 100%;
+}
+
+.admin-card {
+  max-width: 980px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 28px;
+  border-radius: 32px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.12);
+  display: grid;
+  gap: 22px;
+}
+
+.admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.admin-header h2 {
+  margin: 0 0 8px;
+  font-size: 1.75rem;
+}
+
+.admin-header p {
+  margin: 0;
+  color: #5b5a57;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: #2c3e50;
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.admin-top-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.admin-login-panel,
+.admin-metrics-grid,
+.admin-dashboard-grid,
+.admin-actions-row {
+  width: 100%;
+}
+
+.admin-login-panel {
+  display: grid;
+  gap: 18px;
+}
+
+.admin-login-row {
+  display: grid;
+  gap: 10px;
+}
+
+.admin-login-row label {
+  font-weight: 700;
+}
+
+.admin-login-row input {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  font-size: 1rem;
+}
+
+.admin-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.admin-metric-card {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 22px 18px;
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.06);
+  text-align: left;
+}
+
+.admin-metric-card span {
+  display: block;
+  margin-bottom: 10px;
+  color: #5b5a57;
+}
+
+.admin-metric-card strong {
+  font-size: 2rem;
+  color: #161616;
+}
+
+.admin-dashboard-grid {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: 1.4fr 1fr;
+}
+
+.admin-panel-block {
+  background: #f8fafb;
+  border-radius: 24px;
+  padding: 22px;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.04);
+}
+
+.admin-panel-block h3 {
+  margin: 0 0 16px;
+  font-size: 1.1rem;
+}
+
+.chart-row {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.chart-label {
+  color: #4d4d55;
+  font-size: 0.95rem;
+}
+
+.chart-bar {
+  height: 18px;
+  background: #e7ebef;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.chart-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+}
+
+.chart-detail {
+  color: #2d2d33;
+  font-weight: 700;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-table th,
+.admin-table td {
+  text-align: left;
+  padding: 14px 12px;
+}
+
+.admin-table th {
+  color: #5b5a57;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.admin-table tr:not(:last-child) {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.admin-table td {
+  color: #222222;
+}
+
+.status-pass {
+  color: #2f855a;
+  font-weight: 700;
+}
+
+.status-fail {
+  color: #c53030;
+  font-weight: 700;
+}
+
+.admin-actions-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.admin-actions-row .small-button {
+  min-width: 160px;
+}
+
+.admin-note {
+  margin: 0;
+  color: #5b5a57;
+}
+
+.admin-status-message {
+  margin: 0;
+  color: #a23e3e;
+  font-weight: 700;
+}
+
+.admin-status-message.success {
+  color: #2f855a;
+}
+
+.export-card {
+  max-width: 980px;
+  padding: 22px;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 24px 56px rgba(0, 0, 0, 0.12);
+  margin: 0 auto;
+}
+
+.export-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: #4d5df6;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+
+.export-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.metric-block {
+  background: #ffffff;
+  border-radius: 22px;
+  padding: 16px;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.04);
+}
+
+.metric-block span {
+  display: block;
+  color: #5b5a57;
+  margin-bottom: 8px;
+}
+
+.metric-block strong {
+  font-size: 2rem;
 }
 
 .status-card strong {

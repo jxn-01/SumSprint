@@ -1,5 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
+import AdminDashboard, { ResultEntry } from './AdminDashboard';
+import { hasSupabase } from './supabaseClient';
+import { saveAttempt, fetchAdminOverview, AdminOverview } from './supabaseApi';
+
+const ADMIN_KEY = 'sumadmin';
 
 const formatTime = (date: Date) => {
   const iso = date.toISOString().replace(/[:.]/g, '-');
@@ -45,9 +51,16 @@ function App() {
   const [puzzleId, setPuzzleId] = useState(0);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'pass' | 'fail' | ''>('');
-  const [results, setResults] = useState<Array<{ puzzle: string; passed: boolean }>>([]);
+  const [results, setResults] = useState<ResultEntry[]>([]);
   const [answerDigits, setAnswerDigits] = useState(['', '', '']);
+  const [showAdmin, setShowAdmin] = useState(false);
+  const [adminAuthorized, setAdminAuthorized] = useState(false);
+  const [adminMessage, setAdminMessage] = useState('');
+  const [adminOverview, setAdminOverview] = useState<AdminOverview | null>(null);
+  const [adminLoading, setAdminLoading] = useState(false);
+  const [isSupabaseEnabled] = useState(hasSupabase);
   const exportRef = useRef<HTMLDivElement | null>(null);
+  const adminExportRef = useRef<HTMLDivElement | null>(null);
   const answerRefs = useRef<Array<HTMLInputElement | null>>([]);
   const puzzle = useMemo(createPuzzle, [puzzleId]);
   const resultDigits = useMemo(() => puzzle.resultDigits.map((d) => d.toString()), [puzzle]);
@@ -91,6 +104,8 @@ function App() {
     }
 
     const correct = answerDigits.every((digit, index) => digit === resultDigits[index]);
+    const newScore = correct ? score + 1 : score;
+
     setResults((prev) => [
       {
         puzzle: `${puzzle.aDigits.join('')} + ${puzzle.bDigits.join('')} = ${answerDigits.join('')}`,
@@ -100,7 +115,7 @@ function App() {
     ]);
 
     if (correct) {
-      setScore((value) => value + 1);
+      setScore(newScore);
       setMessage('PASS');
       setMessageType('pass');
     } else {
@@ -108,12 +123,59 @@ function App() {
       setMessageType('fail');
     }
 
+    void saveAttempt({
+      playerName: name.trim() || 'Guest',
+      puzzle: `${puzzle.aDigits.join('')} + ${puzzle.bDigits.join('')} = ${answerDigits.join('')}`,
+      passed: correct,
+      score: newScore,
+      createdAt: new Date().toISOString()
+    });
+
     setTimeout(() => {
       setNewPuzzle();
     }, 300);
   };
 
+  const handleAdminAuthorize = (key: string) => {
+    if (key.trim() === ADMIN_KEY) {
+      setAdminAuthorized(true);
+      setAdminMessage('Admin access granted.');
+      return;
+    }
+
+    setAdminAuthorized(false);
+    setAdminMessage('Invalid admin key, try again.');
+  };
+
+  const handleAdminLogout = () => {
+    setAdminAuthorized(false);
+    setShowAdmin(false);
+    setAdminMessage('Admin session closed.');
+  };
+
+  const handleAdminClose = () => setShowAdmin(false);
+
+  const fetchAdminMetrics = async () => {
+    if (!isSupabaseEnabled) {
+      setAdminOverview(null);
+      return;
+    }
+
+    setAdminLoading(true);
+    const overview = await fetchAdminOverview();
+    setAdminOverview(overview);
+    setAdminLoading(false);
+  };
+
+  useEffect(() => {
+    if (showAdmin && adminAuthorized) {
+      void fetchAdminMetrics();
+    }
+  }, [showAdmin, adminAuthorized]);
+
   const passCount = results.filter((entry) => entry.passed).length;
+  const userCount = name.trim() ? 1 : 0;
+
   const exportImage = async () => {
     if (!exportRef.current) return;
     const canvas = await html2canvas(exportRef.current, {
@@ -125,6 +187,32 @@ function App() {
     link.download = createFileName(name);
     link.click();
   };
+
+  const exportAdminImage = async () => {
+    if (!adminExportRef.current) return;
+    const canvas = await html2canvas(adminExportRef.current, {
+      backgroundColor: '#f7f5ef',
+      scale: 2
+    });
+    const link = document.createElement('a');
+    link.href = canvas.toDataURL('image/png');
+    link.download = `admin-report_${formatTime(new Date())}.png`;
+    link.click();
+  };
+
+  const exportAdminPdf = async () => {
+    if (!adminExportRef.current) return;
+    const canvas = await html2canvas(adminExportRef.current, {
+      backgroundColor: '#ffffff',
+      scale: 2
+    });
+    const imageData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF({ orientation: 'landscape', unit: 'px', format: [canvas.width, canvas.height] });
+    pdf.addImage(imageData, 'PNG', 0, 0, canvas.width, canvas.height);
+    pdf.save(`admin-report_${formatTime(new Date())}.pdf`);
+  };
+
+  const adminButtonLabel = adminAuthorized && showAdmin ? 'Hide Admin' : 'Admin Console';
 
   return (
     <div className="app-shell">
@@ -161,8 +249,30 @@ function App() {
             <span className="share-icon">📤</span>
             Share Score
           </button>
+          <button className="small-button admin-button" onClick={() => setShowAdmin((open) => !open)}>
+            {adminButtonLabel}
+          </button>
         </div>
       </header>
+
+      {showAdmin && (
+        <AdminDashboard
+          ref={adminExportRef}
+          authorized={adminAuthorized}
+          playerName={name}
+          score={score}
+          results={results}
+          message={adminMessage}
+          onAuthorize={handleAdminAuthorize}
+          onLogout={handleAdminLogout}
+          onClose={handleAdminClose}
+          onExportImage={exportAdminImage}
+          onExportPdf={exportAdminPdf}
+          overview={adminOverview}
+          loading={adminLoading}
+          supabaseEnabled={isSupabaseEnabled}
+        />
+      )}
 
       <main className="main-card">
         <div className="score-summary">
