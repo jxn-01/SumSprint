@@ -386,13 +386,13 @@ function App() {
               </div>
             ))}
           </div>
+          <div className="plus-sign">+</div>
           <div className="number-row second-row">
             {toDisplayDigits(puzzle.bDigits).map((digit, index) => (
               <div key={`b-${index}`} className="digit-cell">
                 {digit}
               </div>
             ))}
-            <div className="plus-sign">+</div>
           </div>
           <div className="separator" />
           <div className="answer-row">
