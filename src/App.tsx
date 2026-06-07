@@ -396,6 +396,7 @@ function App() {
                 </div>
               ))}
             </div>
+            
           </div>
           <div className="separator" />
           <div className="answer-row">

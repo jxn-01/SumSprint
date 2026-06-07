@@ -155,12 +155,17 @@ body {
 /* Pin the plus to the right side of the first number row without affecting layout */
 .number-row.first-row {
   position: relative;
-  padding-right: 56px; /* space for the plus */
+}
+
+.numbers-group {
+  position: relative;
+  width: calc(72px * 3 + 10px * 2); /* 3 digits + 2 gaps */
+  margin: 0 auto;
 }
 
 .number-row.first-row .plus-sign {
   position: absolute;
-  right: 12px;
+  right: -44px;
   top: 50%;
   transform: translateY(-50%);
 }
