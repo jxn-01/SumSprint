@@ -141,10 +141,9 @@ body {
 }
 
 .plus-sign {
-  position: absolute;
-  right: -60px;
-  top: 50%;
-  transform: translateY(-50%);
+  display: block;
+  position: static;
+  margin: -6px auto 0;
   font-size: 2.4rem;
   color: #dd4545;
 }
@@ -193,9 +192,11 @@ body {
 }
 
 .score-summary {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  display: flex;
   gap: 12px;
+  align-items: stretch;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   margin-bottom: 18px;
 }
 
@@ -670,8 +671,10 @@ body {
     width: 100%;
   }
 
+  /* Keep score summary horizontal on small screens */
   .score-summary {
-    grid-template-columns: 1fr;
+    display: flex;
+    gap: 10px;
   }
 
   .answer-row {
