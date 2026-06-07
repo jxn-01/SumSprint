@@ -121,8 +121,8 @@ body {
 }
 
 .number-row {
-  display: flex;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(72px, 72px));
   gap: 10px;
   position: relative;
 }
@@ -141,11 +141,28 @@ body {
 }
 
 .plus-sign {
-  display: block;
-  position: static;
-  margin: -6px auto 0;
-  font-size: 2.4rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(221, 69, 69, 0.06);
   color: #dd4545;
+  font-size: 1.6rem;
+}
+
+/* Pin the plus to the right side of the first number row without affecting layout */
+.number-row.first-row {
+  position: relative;
+  padding-right: 56px; /* space for the plus */
+}
+
+.number-row.first-row .plus-sign {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .separator {
@@ -160,6 +177,12 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 8px;
+}
+
+.top-numbers-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .answer-row {
