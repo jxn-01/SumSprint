@@ -101,6 +101,24 @@ body {
   gap: 10px;
 }
 
+.app-footer {
+  margin-top: auto;
+  align-self: flex-end;
+  padding: 10px 0;
+  font-size: 0.9rem;
+  color: #4d4a44;
+}
+
+.app-footer a {
+  color: #4d5df6;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(77, 93, 246, 0.4);
+}
+
+.app-footer a:hover {
+  color: #2a3bcf;
+}
+
 .main-card {
   flex: 1;
   max-width: 560px;
@@ -632,6 +650,23 @@ body {
   justify-content: center;
   gap: 18px;
   margin-top: 24px;
+}
+
+.app-footer {
+  text-align: center;
+  padding: 12px 0 6px;
+  font-size: 0.94rem;
+  color: #4d4a44;
+}
+
+.app-footer a {
+  color: #4d5df6;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(77, 93, 246, 0.4);
+}
+
+.app-footer a:hover {
+  color: #2a3bcf;
 }
 
 @media (max-width: 900px) {

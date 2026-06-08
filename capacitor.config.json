@@ -1,0 +1,6 @@
+{
+  "appId": "com.tinysums.app",
+  "appName": "Tiny Sum",
+  "webDir": "dist",
+  "bundledWebRuntime": false
+}

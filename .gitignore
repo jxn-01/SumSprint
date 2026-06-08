@@ -3,4 +3,6 @@ dist/
 *.log
 layout-reference.jpg
 .env
+*.jks
+*.keystore
 isssues/
