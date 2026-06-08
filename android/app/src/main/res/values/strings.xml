@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Tiny Sum</string>
+    <string name="title_activity_main">Tiny Sum</string>
+    <string name="package_name">com.tinysums.app</string>
+    <string name="custom_url_scheme">com.tinysums.app</string>
+</resources>

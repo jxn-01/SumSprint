@@ -420,6 +420,11 @@ function App() {
         </div>
       </main>
 
+      <footer className="app-footer">
+        <a href="/privacy-policy.html" target="_blank" rel="noopener noreferrer">
+          Privacy Policy
+        </a>
+      </footer>
     </div>
   );
 }
